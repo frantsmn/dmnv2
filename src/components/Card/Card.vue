@@ -14,12 +14,15 @@
         class="container pb-6 border-b border-0 mx-auto group-last/card:border-0 border-emerald-900 border-opacity-30">
       <div class="py-6 pb-2 flex gap-5">
         <!--Links-->
-        <div class="basis-1/5 mb-1 flex-shrink-1 flex flex-col items-start">
+        <div class="basis-1/5 mb-1 flex-shrink-1 flex flex-col items-start relative">
+          <span class="block opacity-50 rounded pt-1 font-light text-xs mr-1.5 absolute -top-5"># {{props.result.index}}</span>
           <a
               v-if="props.result.domain"
               :href="domainHref"
               class="pb-2 font-semibold title-font text-white inline-flex flex-grow-0 items-center group/link"
-              target="_blank">{{ props.result.domain }}
+              target="_blank">
+
+            <span>{{ props.result.domain }}</span>
             <ArrowTopRightOnSquare/>
           </a>
           <a
@@ -118,6 +121,7 @@ const {
 
 const props = withDefaults(defineProps<{ result: IResult }>(), {
   result: () => ({
+    index: 1,
     status: 'awaiting',
     domain: 'example.com',
     webArchive: null,

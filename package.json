@@ -17,7 +17,7 @@
     "build-server": "tsc -p tsconfig.server.json",
 
     "build:all":"run-s build-server build",
-    "dev:all":"run-s dev:server dev:spa",
+    "dev:all":"run-p dev:server dev:spa",
     "start": "node server-dist/index.js"
   },
   "dependencies": {

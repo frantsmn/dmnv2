@@ -16,6 +16,7 @@ export const useWebArchiveScraper = (browser: Browser) => {
                 timeout: 5000,
             })
         } catch {
+            await page.close()
             throw `Не удалось перейти на страницу [web.archive.org | ${domain}]`
         }
 
@@ -23,6 +24,7 @@ export const useWebArchiveScraper = (browser: Browser) => {
         const container = await page.$('.sparkline-container')
 
         if (!container) {
+            await page.close()
             throw `Не удалось найти блок для скриншота [web.archive.org | ${domain}]`
         }
 
@@ -41,6 +43,7 @@ export const useWebArchiveScraper = (browser: Browser) => {
         })
         const buffer = await container.screenshot()
         if (!buffer) {
+            await page.close()
             throw `Не удалось сделать скриншот [web.archive.org | ${domain}]`
         }
         data.img = buffer?.toString('base64') ?? ''
@@ -58,10 +61,10 @@ export const useWebArchiveScraper = (browser: Browser) => {
                 )
             })
         } catch {
+            await page.close()
             throw `Не удалось собрать ссылки [web.archive.org | ${domain}]`
         }
 
-        await page.goto('about:blank')
         await page.close()
 
         if (!data.links.length && !data.img) {

@@ -41,6 +41,7 @@ export const useGoogleScraper = (browser: Browser) => {
                 timeout: 2000,
             })
         } catch {
+            await page.close()
             throw `Не удалось перейти на страницу [google.by | ${domain}]`
         }
 
@@ -49,10 +50,10 @@ export const useGoogleScraper = (browser: Browser) => {
             data.amountStr = await grabAmountStr(page)
             data.links = await grabLinks(page)
         } catch {
+            await page.close()
             throw `Не удалось собрать данные выдачи [google.by | ${domain}]`
         }
 
-        await page.goto('about:blank')
         await page.close()
 
         if (!data.amountStr && !data.links.length) {

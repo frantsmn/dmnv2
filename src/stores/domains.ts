@@ -4,15 +4,24 @@ import {get, set} from '@vueuse/core'
 import {asyncDelay} from '@/helpers'
 import fetchDomainInfo from '@/service/fetch-domain-info'
 import type {IResult} from '@/components/Card/types'
+import {sortByAlphabet, sortByAge} from '@/stores/results-sort-methods'
+
+export type Sort = 'alphabet' | 'age' | 'default'
 
 export const useDomainsStore = defineStore('domains', () => {
     const delay = ref<number>(0)
+    const sort = ref<Sort>('default')
     const sources = ref<string[]>([])
     const results = reactive<Map<string, IResult>>(new Map())
     const totalAmount = computed(() => results.size)
     const completedAmount = ref(0)
     const isInProcess = ref<boolean>(false)
     const isAllCompleted = ref<boolean>(false)
+    const sortsMethodsMap = reactive<Record<Sort, (results: any[]) => any>>({
+        'default': (results) => results,
+        'age': (results) => sortByAge(results),
+        'alphabet': (results) => sortByAlphabet(results),
+    })
 
     /**
      * Установить список доменов для прогона
@@ -22,8 +31,9 @@ export const useDomainsStore = defineStore('domains', () => {
         const uniqueDomains = [...new Set(payload)]
 
         results.clear()
-        uniqueDomains.forEach((domainName) =>
+        uniqueDomains.forEach((domainName, index) =>
             results.set(domainName, {
+                index: index + 1,
                 domain: domainName,
                 status: 'awaiting',
                 webArchive: null,
@@ -42,6 +52,12 @@ export const useDomainsStore = defineStore('domains', () => {
      * @param {string[]} payload
      */
     const setSources = (payload: string[]) => set(sources, payload)
+    /**
+     * Установить порядок сортировки результатов
+     */
+    const setSort = (payload: string) => {
+        set(sort, payload)
+    }
     /**
      * Запуск прогона доменов
      */
@@ -70,6 +86,7 @@ export const useDomainsStore = defineStore('domains', () => {
                 })
                 const {status, data, message} = await fetchDomainInfo(domainName, get(sources))
                 results.set(domainName, {
+                    index: domainValue.index,
                     status,
                     message,
                     ...data,
@@ -80,20 +97,31 @@ export const useDomainsStore = defineStore('domains', () => {
             }
         }
     }
+    /**
+     * Остановка прогона доменов
+     */
     const stopProcess = () => set(isInProcess, false)
+
+    /**
+     * Отсортированные результаты
+     */
+    const sortedResults = computed(() => sortsMethodsMap[get(sort)](Array.from(results.values())))
 
     return {
         isInProcess,
         isAllCompleted,
 
+        sort,
         sources,
         results,
+        sortedResults,
 
         totalAmount,
         completedAmount,
 
         setDomains,
         setDelay,
+        setSort,
         setSources,
         startProcess,
         stopProcess,

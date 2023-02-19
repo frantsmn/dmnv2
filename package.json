@@ -6,19 +6,19 @@
     "node": "16.x"
   },
   "scripts": {
-    "dev": "vite",
+    "dev:spa": "vite",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
 
+    "dev:server": "cross-env NODE_ENV=development run-s build-server start",
     "build-server": "tsc -p tsconfig.server.json",
-    "dev-server": "cross-env NODE_ENV=development run-s build-server start",
 
-    "start": "node server-dist/index.js",
-
-    "build:all":"run-s build-server build"
+    "build:all":"run-s build-server build",
+    "dev:all":"run-s dev:server dev:spa",
+    "start": "node server-dist/index.js"
   },
   "dependencies": {
     "@fastify/cors": "^8.2.0",

@@ -5,8 +5,8 @@ import fastifyStatic from '@fastify/static'
 import cors from '@fastify/cors'
 import path from 'path'
 
-const port = process.env.PORT || 3000;
-const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
+const port: number = Number(process.env.PORT) || 3000 as number
+const host: string = ("RENDER" in process.env) ? `0.0.0.0` : `localhost` as string
 
 (async () => {
     const server: FastifyInstance = fastify()

@@ -5,6 +5,9 @@ import fastifyStatic from '@fastify/static'
 import cors from '@fastify/cors'
 import path from 'path'
 
+const port = process.env.PORT || 3000;
+const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
+
 (async () => {
     const server: FastifyInstance = fastify()
 
@@ -19,9 +22,7 @@ import path from 'path'
         // prefix: '/public/', // default '/'
     })
 
-    const port = Number(process.env.PORT || 8080)
-
-    server.listen({port}, (err, address) => {
+    server.listen({host, port}, (err, address) => {
         if (err) {
             console.error(err)
             process.exit(1)

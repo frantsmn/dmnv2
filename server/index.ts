@@ -22,7 +22,7 @@ const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
         // prefix: '/public/', // default '/'
     })
 
-    server.listen({host, port}, (err, address) => {
+    server.listen({host: host, port: port}, (err, address) => {
         if (err) {
             console.error(err)
             process.exit(1)

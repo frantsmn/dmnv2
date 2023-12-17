@@ -3,11 +3,11 @@ import {useGoogleScraper} from './google-scraper'
 import {useWebArchiveScraper} from './web-archive-scraper'
 
 export const useScrapers = (browser: Browser) => {
-    const {getGoogleInfo} = useGoogleScraper(browser)
-    const {getWebArchiveInfo} = useWebArchiveScraper(browser)
+  const {getGoogleInfo} = useGoogleScraper(browser)
+  const {getWebArchiveInfo} = useWebArchiveScraper(browser)
 
-    return {
-        getGoogleInfo,
-        getWebArchiveInfo,
-    }
+  return {
+    getGoogleInfo,
+    getWebArchiveInfo,
+  }
 }

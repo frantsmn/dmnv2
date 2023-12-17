@@ -13,7 +13,7 @@ onMounted(() => emit('update:modelValue', get(sort)))
 </script>
 
 <template>
-  <div class="py-4 mx-4">
+  <div class="py-4 mx-4 border-b border-b-emerald-900 border-opacity-50">
     <p class="block mb-2">Сортировка</p>
     <div class="flex flex-col">
       <label class="flex gap-1.5 mb-1 align-middle cursor-pointer">

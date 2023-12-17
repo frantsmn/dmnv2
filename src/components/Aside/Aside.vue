@@ -8,6 +8,7 @@ import DelaySetting from '@/components/Aside/DelaySetting.vue'
 import SourcesFilter from '@/components/Aside/SourcesFilter.vue'
 import ResultsSort from '@/components/Aside/ResultsSort.vue'
 import {storeToRefs} from 'pinia'
+import ResultsFilter from '@/components/Aside/results-filter.vue'
 
 const {
   startProcess,
@@ -16,6 +17,7 @@ const {
   setSources,
   setDelay,
   setSort,
+  setFilter,
 } = useDomainsStore()
 
 const {
@@ -61,6 +63,7 @@ const isStartButtonDisabled = computed(() => get(isInProcess))
       <SourcesFilter @update:modelValue="setSources"/>
       <DelaySetting @update:modelValue="setDelay"/>
       <ResultsSort @update:modelValue="setSort"/>
+      <ResultsFilter @update:modelValue="setFilter"/>
 
       <!--      <div class="py-4 border-b border-b-emerald-900 border-opacity-50 mx-4">-->
       <!--        <p class="block mb-2">Фильтры</p>-->

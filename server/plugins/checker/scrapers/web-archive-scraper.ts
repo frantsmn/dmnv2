@@ -1,35 +1,42 @@
 import type {Browser} from 'puppeteer'
 import type {WebArchiveData} from '../domain/types'
+import type {ElementHandle} from 'puppeteer'
 
 export const useWebArchiveScraper = (browser: Browser) => {
-    const getWebArchiveInfo = async (domain: string) => {
-        const page = await browser.newPage()
-        const data: WebArchiveData = {
-            img: '',
-            links: [],
-        }
+  const getWebArchiveInfo = async (domain: string) => {
+    const page = await browser.newPage()
+    const data: WebArchiveData = {
+      img: '',
+      links: [],
+    }
+    let container: ElementHandle<Element> | null = null
 
-        try {
-            await page.goto(`http://web.archive.org/web/*/${domain}`)
-            await page.waitForNetworkIdle({
-                idleTime: 1000,
-                timeout: 5000,
-            })
-        } catch {
-            await page.close()
-            throw `Не удалось перейти на страницу [web.archive.org | ${domain}]`
-        }
+    try {
+      await page.goto(`http://web.archive.org/web/*/${domain}`)
+      await page.waitForNetworkIdle({
+        idleTime: 1000,
+        timeout: 5000,
+      })
+    } catch {
+      await page.close()
+      throw Error('Не удалось открыть страницу')
+    }
 
-        await page.waitForSelector('#wm-graph-anchor', {timeout: 4000})
-        const container = await page.$('.sparkline-container')
+    try { 
+      await page.waitForSelector('#wm-graph-anchor', {timeout: 4000})
+      container = await page.$('.sparkline-container')
+    } catch {
+      await page.close()
+      throw Error('Не удалось найти график')
+    }
 
-        if (!container) {
-            await page.close()
-            throw `Не удалось найти блок для скриншота [web.archive.org | ${domain}]`
-        }
+    if (!container) {
+      await page.close()
+      throw Error('Не удалось найти график')
+    }
 
-        await page.addStyleTag({
-            content: `
+    await page.addStyleTag({
+      content: `
             .sparkline-container {
                 overflow: visible !important;
                 max-width: unset !important;
@@ -40,41 +47,42 @@ export const useWebArchiveScraper = (browser: Browser) => {
                 display: none !important;
             }
             `
-        })
-        const buffer = await container.screenshot()
-        if (!buffer) {
-            await page.close()
-            throw `Не удалось сделать скриншот [web.archive.org | ${domain}]`
+    })
+
+    const buffer = await container.screenshot()
+    if (!buffer) {
+      await page.close()
+      throw Error('Не удалось найти график')
+    }
+    data.img = buffer?.toString('base64') ?? ''
+
+    try {
+      data.links = await page.evaluate(() => {
+        const anchors: NodeListOf<HTMLAnchorElement> = document.querySelectorAll('.captures-range-info a')
+        return [...anchors].map((a) => {
+          return {
+            href: a.href,
+            innerText: a.innerText,
+            timestamp: +new Date(a.innerText)
+          }
         }
-        data.img = buffer?.toString('base64') ?? ''
-
-        try {
-            data.links = await page.evaluate(() => {
-                const anchors: NodeListOf<HTMLAnchorElement> = document.querySelectorAll('.captures-range-info a')
-                return [...anchors].map((a) => {
-                        return {
-                            href: a.href,
-                            innerText: a.innerText,
-                            timestamp: +new Date(a.innerText)
-                        }
-                    }
-                )
-            })
-        } catch {
-            await page.close()
-            throw `Не удалось собрать ссылки [web.archive.org | ${domain}]`
-        }
-
-        await page.close()
-
-        if (!data.links.length && !data.img) {
-            return null
-        }
-
-        return data
+        )
+      })
+    } catch {
+      await page.close()
+      throw Error('Не удалось собрать ссылки')
     }
 
-    return {
-        getWebArchiveInfo
+    await page.close()
+
+    if (!data.links.length && !data.img) {
+      return null
     }
+
+    return data
+  }
+
+  return {
+    getWebArchiveInfo
+  }
 }

@@ -8,11 +8,29 @@ module.exports = {
     'eslint:recommended',
     '@vue/eslint-config-typescript'
   ],
+  ignorePatterns: [
+    'node_modules/',
+    '**/node_modules/',
+    '/**/node_modules/*',
+    'out/',
+    'dist/',
+    'build/',
+  ],
   rules: {
     quotes: ["error", "single"],
-    semi: ["error", "never"],
+    '@stylistic/ts/indent': ['error', 2],
+    '@stylistic/ts/quotes': ['error', 'single'],
+    "semi": "off",
+    "@typescript-eslint/semi": ['error', 'never'],
+    // override/add rules settings here, such as:
+    // 'vue/no-unused-vars': 'error'
   },
   parserOptions: {
-    ecmaVersion: 'latest'
-  }
+    sourceType: "module",
+    ecmaVersion: 2022,
+  },
+  plugins: [
+    '@typescript-eslint',
+    '@stylistic/ts',
+  ],
 }

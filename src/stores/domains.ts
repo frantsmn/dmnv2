@@ -28,8 +28,8 @@ export const useDomainsStore = defineStore('domains', () => {
   })
 
   const filterResults = (results: IResult[]) => {
-    return filter.isHideEmptyResults 
-      ? results.filter(result => result.webArchive !== null || result.google?.links.length)
+    return filter.isHideEmptyResults
+      ? results.filter(result => result.status !== 'fail' && (result.webArchive !== null || result.google?.links.length))
       : results
   }
 

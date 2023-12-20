@@ -1,18 +1,19 @@
 import type {FastifyRequest} from 'fastify'
-import type {DomainSource} from '../domain/types'
+import type {DomainSource} from '@domain'
+
 export interface DomainRawRequest {
-    domain: string,
-    source: string
+  domain: string,
+  source: string
 }
 export interface DomainRequest {
-    domain: string,
-    source: DomainSource[]
+  domain: string,
+  source: DomainSource[]
 }
 export const requestAdapter = (request: FastifyRequest): DomainRequest => {
-    const {domain, source} = request.query as DomainRawRequest
+  const {domain, source} = request.query as DomainRawRequest
 
-    return {
-        domain,
-        source: source.split(',') as DomainSource[]
-    }
+  return {
+    domain,
+    source: source.split(',') as DomainSource[]
+  }
 }

@@ -1,5 +1,5 @@
+import type {DomainCheckResponse} from '@domain'
 import type {FastifyRequest} from 'fastify'
-import type {DomainCheckResponse} from './domain/types'
 import type {DomainRequest} from './application/request-adapter'
 import puppeteer from 'puppeteer'
 import {requestAdapter, isValidDomain} from './application'
@@ -21,48 +21,24 @@ export const useChecker = async () => {
       await page.goto('http://localhost:8080/')
     }, 200)
   }
-  const checkDomain = async (request: FastifyRequest) => {
+  const checkDomain = async (request: FastifyRequest): Promise<DomainCheckResponse> => {
     const {domain, source}: DomainRequest = requestAdapter(request)
-    const response: DomainCheckResponse = {
-      status: 'success',
-      data: {
-        domain,
-        google: null,
-        webArchive: null,
-      }
-    }
 
     if (!isValidDomain(domain)) {
       return {
-        ...response,
         status: 'fail',
-        message: 'Некорректное имя домена',
+        error: 'Некорректное имя домена',
       }
     }
-    const sourceMethods = {
-      webArchive: async (domain: string) => {
-        try {
-          response.data.webArchive = await getWebArchiveInfo(domain)
-        } catch (error) {
-          const {message} = error as Error
-          response.status = 'error'
-          response.message = `[Web Archive] ${message ?? 'Ошибка'}`
-        }
-      },
-      google: async (domain: string) => {
-        try {
-          response.data.google = await getGoogleInfo(domain)
-        } catch (error) {
-          const {message} = error as Error
-          response.status = 'error'
-          response.message = `[Google] ${message ?? 'Ошибка'}`
-        }
-      },
+
+    return {
+      status: 'success',
+      data: {
+        domain,
+        ...{google: source.includes('google') ? await getGoogleInfo(domain) : undefined},
+        ...{webArchive: source.includes('webArchive') ? await getWebArchiveInfo(domain) : undefined},
+      }
     }
-
-    await Promise.all(source.map(sourceName => sourceMethods[sourceName]?.(domain)))
-
-    return response
   }
 
   return {

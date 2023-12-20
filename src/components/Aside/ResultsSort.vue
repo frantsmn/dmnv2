@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import {onMounted} from 'vue'
 import type {Ref} from 'vue'
-import type {Sort} from '@/stores/domains'
 import {get, useStorage} from '@vueuse/core'
+import type {Sort} from '@/stores/types'
 
 const sort: Ref<Sort> = useStorage('Settings:Sort', 'default') as Ref<Sort>
 const emit = defineEmits<{

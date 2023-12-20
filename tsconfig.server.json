@@ -2,14 +2,24 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "commonjs",
-    "rootDir": "./server",
     "outDir": "./server-dist",
     "esModuleInterop": true,
+    "moduleResolution": "Node",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@domain": ["./domain/index.ts"]
+    }
   },
+  "exclude": [
+    "node_modules/**/*",
+    "src/**/*",
+  ],
   "include": [
-    "server"
+    "server/**/*",
+    "domain/**/*",
   ]
 }

@@ -1,14 +1,12 @@
 <script lang="ts" setup>
-import {computed} from 'vue'
-import {get} from '@vueuse/core'
 import {useDomainsStore} from '@/stores/domains'
 import TextareaList from '@/components/Aside/TextareaList.vue'
 import ProgressInfo from '@/components/Aside/ProgressInfo.vue'
 import DelaySetting from '@/components/Aside/DelaySetting.vue'
 import SourcesFilter from '@/components/Aside/SourcesFilter.vue'
 import ResultsSort from '@/components/Aside/ResultsSort.vue'
-import {storeToRefs} from 'pinia'
 import ResultsFilter from '@/components/Aside/results-filter.vue'
+import {storeToRefs} from 'pinia'
 
 const {
   startProcess,
@@ -25,8 +23,6 @@ const {
   totalAmount,
   completedAmount,
 } = storeToRefs(useDomainsStore())
-
-const isStartButtonDisabled = computed(() => get(isInProcess))
 </script>
 
 <template>
@@ -43,14 +39,14 @@ const isStartButtonDisabled = computed(() => get(isInProcess))
           :disabled="isInProcess"
       >
         <button
-            :disabled="isStartButtonDisabled"
+            :disabled="isInProcess"
             class="text-emerald-500 hover:text-white disabled:hover:text-emerald-500 hover:bg-emerald-500 disabled:hover:bg-transparent focus:ring-2 focus:outline-none font-medium text-sm text-center rounded-md px-5 pt-1.5 pb-2 mr-2 mb-2 border-2 border-emerald-900 hover:border-emerald-500 disabled:hover:border-emerald-900 focus:ring-emerald-500 disabled:cursor-not-allowed"
             type="button"
             @click="startProcess">
           Старт
         </button>
 <!--        <button-->
-<!--            :disabled="!isStartButtonDisabled"-->
+<!--            :disabled="!isInProcess"-->
 <!--            class="text-ember-500 hover:text-white disabled:hover:text-ember-500 hover:bg-ember-500 disabled:hover:bg-transparent focus:ring-2 focus:outline-none font-medium text-sm text-center rounded-md px-5 pt-1.5 pb-2 mr-2 mb-2 border-2 border-ember-900 hover:border-ember-500 disabled:hover:border-emerald-900 focus:ring-emerald-500 disabled:cursor-not-allowed"-->
 <!--            type="button"-->
 <!--            @click="stopProcess"-->
@@ -64,11 +60,6 @@ const isStartButtonDisabled = computed(() => get(isInProcess))
       <DelaySetting @update:modelValue="setDelay"/>
       <ResultsSort @update:modelValue="setSort"/>
       <ResultsFilter @update:modelValue="setFilter"/>
-
-      <!--      <div class="py-4 border-b border-b-emerald-900 border-opacity-50 mx-4">-->
-      <!--        <p class="block mb-2">Фильтры</p>-->
-      <!--      </div>-->
-
       <!--      <div class="py-4 border-b border-b-emerald-900 border-opacity-50 mx-4">-->
       <!--        <p class="block mb-2">История</p>-->
       <!--      </div>-->

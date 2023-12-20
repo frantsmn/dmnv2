@@ -1,6 +1,6 @@
 {
   "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "server/**/*"],
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "domain/**/*", "server/**/*"],
   "exclude": ["node_modules/**/*"],
   "compilerOptions": {
     "lib": [
@@ -16,7 +16,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@domain": ["./domain/index.ts"],
     },
     "esModuleInterop": true,
     "module": "es2022",

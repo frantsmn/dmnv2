@@ -36,7 +36,7 @@
   </div>
 
   <div
-      v-if="status === 'pending'"
+      v-if="status === 'fetching'"
       class="flex-shrink-0 w-[1.3em] h-[1.3em] rounded-full bg-amber-600 inline-flex items-center justify-center text-white relative z-10 mr-[0.5em]"
       title="Ожидание ответа..."
   >
@@ -57,7 +57,7 @@
   </div>
 
   <div
-      v-if="status === 'awaiting'"
+      v-if="status === 'idle'"
       class="flex-shrink-0 w-[1.3em] h-[1.3em] rounded-full bg-gray-500 inline-flex items-center justify-center text-white relative z-10 mr-[0.5em]"
       title="В очереди"
   >
@@ -76,9 +76,9 @@ export default {
   props: {
     status: {
       type: String,
-      default: 'awaiting',
+      default: 'idle',
       validator(value: string) {
-        return ['awaiting', 'pending', 'success', 'fail'].includes(value)
+        return ['idle', 'fetching', 'success', 'fail'].includes(value)
       }
     }
   }

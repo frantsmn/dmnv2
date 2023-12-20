@@ -1,5 +1,5 @@
 import type {Browser, Page} from 'puppeteer'
-import type {GoogleData, LinkData} from '../domain/types'
+import type {GoogleData, LinkData} from '@domain'
 
 export const useGoogleScraper = (browser: Browser) => {
   const grabAmountStr = async (page: Page): Promise<string> => {
@@ -41,25 +41,26 @@ export const useGoogleScraper = (browser: Browser) => {
         timeout: 2000,
       })
     } catch {
-      await page.close()
-      throw Error('Не удалось перейти на страницу поиска')
+      data.error = 'Не удалось перейти на страницу поиска'
+      void page.close()
+      return data
     }
 
     try {
       await page.waitForSelector('#result-stats', {timeout: 2000})
-      data.amountStr = await grabAmountStr(page)
-      data.links = await grabLinks(page)
+      const links = await grabLinks(page)
+
+      if (links.length === 0) {
+        data.error = 'Данные поисковой выдачи отсутствуют'
+      } else {
+        data.links = links
+        data.amountStr = await grabAmountStr(page)
+      }
     } catch {
-      await page.close()
-      throw Error('Не удалось собрать данные выдачи')
+      data.error = 'Не удалось собрать данные поисковой выдачи'
     }
 
-    await page.close()
-
-    if (!data.amountStr && !data.links.length) {
-      return null
-    }
-
+    void page.close()
     return data
   }
 

@@ -1,5 +1,5 @@
+import type {WebArchiveData} from '@domain'
 import type {Browser} from 'puppeteer'
-import type {WebArchiveData} from '../domain/types'
 import type {ElementHandle} from 'puppeteer'
 
 export const useWebArchiveScraper = (browser: Browser) => {
@@ -18,21 +18,24 @@ export const useWebArchiveScraper = (browser: Browser) => {
         timeout: 5000,
       })
     } catch {
-      await page.close()
-      throw Error('Не удалось открыть страницу')
+      data.error = 'Не удалось открыть страницу'
+      void page.close()
+      return data
     }
 
     try { 
       await page.waitForSelector('#wm-graph-anchor', {timeout: 4000})
       container = await page.$('.sparkline-container')
     } catch {
+      data.error = 'Не удалось найти график'
       await page.close()
-      throw Error('Не удалось найти график')
+      return data
     }
 
     if (!container) {
-      await page.close()
-      throw Error('Не удалось найти график')
+      data.error = 'Не удалось найти график'
+      void page.close()
+      return data
     }
 
     await page.addStyleTag({
@@ -51,8 +54,9 @@ export const useWebArchiveScraper = (browser: Browser) => {
 
     const buffer = await container.screenshot()
     if (!buffer) {
-      await page.close()
-      throw Error('Не удалось найти график')
+      data.error = 'Не удалось найти график'
+      void page.close()
+      return data
     }
     data.img = buffer?.toString('base64') ?? ''
 
@@ -69,16 +73,10 @@ export const useWebArchiveScraper = (browser: Browser) => {
         )
       })
     } catch {
-      await page.close()
-      throw Error('Не удалось собрать ссылки')
+      data.error = 'Не удалось собрать ссылки диапазона графика'
     }
 
-    await page.close()
-
-    if (!data.links.length && !data.img) {
-      return null
-    }
-
+    void page.close()
     return data
   }
 

@@ -20,7 +20,7 @@ defineProps<{
           target="_blank">
         {{ data.links[0].innerText }}
       </a>
-      <template v-if="data.links.length === 2"> -</template>
+      <template v-if="data.links.length === 2">&nbsp;-&nbsp;</template>
       <a
           v-if="data.links[1]"
           :href="data.links[1].href"

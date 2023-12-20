@@ -18,7 +18,7 @@ export const useWebArchiveScraper = (browser: Browser) => {
         timeout: 5000,
       })
     } catch {
-      data.error = 'Не удалось открыть страницу'
+      data.error = 'Не удалось собрать данные. ⚠️ Ресурс ограничил доступ'
       void page.close()
       return data
     }

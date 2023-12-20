@@ -57,7 +57,7 @@ export const useGoogleScraper = (browser: Browser) => {
         data.amountStr = await grabAmountStr(page)
       }
     } catch {
-      data.error = 'Не удалось собрать данные поисковой выдачи'
+      data.error = 'Не удалось собрать данные. ⚠️ Ресурс ограничил доступ'
     }
 
     void page.close()

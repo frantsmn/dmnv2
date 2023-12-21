@@ -24,6 +24,7 @@
     "fastify": "^4.25.1",
     "pinia": "^2.0.28",
     "puppeteer": "^19.5.2",
+    "set-interval-async": "^3.0.3",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },

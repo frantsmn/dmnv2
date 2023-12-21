@@ -9,8 +9,8 @@ const emit = defineEmits<{
 }>()
 
 const filter = useStorage('Settings:Filter', {
-  isHideEmptyWebArchiveResults: false,
-  isHideEmptyGoogleResults: false,
+  hasWebArchiveResults: false,
+  hasGoogleResults: false,
 })
 
 const onUpdate = () => emit('update:modelValue', get(filter))
@@ -23,14 +23,14 @@ onMounted(onUpdate)
     <p class="block mb-2">Фильтры</p>
     <Checkbox
         id="hideEmptyWebArchiveResults"
-        v-model="filter.isHideEmptyWebArchiveResults"
+        v-model="filter.hasWebArchiveResults"
         @update:modelValue="onUpdate"
         title="Скрывает результаты без данных с WebArchive"
     >Скрыть без WebArchive
     </Checkbox>
     <Checkbox
         id="hideEmptyGoogleResults"
-        v-model="filter.isHideEmptyGoogleResults"
+        v-model="filter.hasGoogleResults"
         @update:modelValue="onUpdate"
         title="Скрывает результаты без данных с Google"
     >Скрыть без Google

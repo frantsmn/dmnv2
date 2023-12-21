@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import type {WebArchiveData} from '@domain'
-import type {Status} from '@/stores/types'
 
 defineProps<{
   data: WebArchiveData,
-  status: Status
 }>()
 </script>
 
@@ -36,11 +34,6 @@ defineProps<{
           alt="graph"
           class="rounded max-w-none m-auto mb-0.5 h-[5.5rem] opacity-70 hover:opacity-100 transition-opacity delay-75 duration-300"
       >
-    </div>
-  </div>
-  <div v-if="status === 'fetching'" class="w-full">
-    <div class="animate-pulse flex flex-col content-end items-end">
-      <div class="rounded bg-white bg-opacity-[0.05] mb-1 h-[85px] w-[100%]"></div>
     </div>
   </div>
 </template>

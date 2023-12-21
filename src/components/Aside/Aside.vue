@@ -45,14 +45,14 @@ const {
             @click="startProcess">
           Старт
         </button>
-<!--        <button-->
-<!--            :disabled="!isInProcess"-->
-<!--            class="text-ember-500 hover:text-white disabled:hover:text-ember-500 hover:bg-ember-500 disabled:hover:bg-transparent focus:ring-2 focus:outline-none font-medium text-sm text-center rounded-md px-5 pt-1.5 pb-2 mr-2 mb-2 border-2 border-ember-900 hover:border-ember-500 disabled:hover:border-emerald-900 focus:ring-emerald-500 disabled:cursor-not-allowed"-->
-<!--            type="button"-->
-<!--            @click="stopProcess"-->
-<!--        >-->
-<!--          Пауза-->
-<!--        </button>-->
+        <button
+            :disabled="!isInProcess"
+            class="text-amber-500 hover:text-white disabled:hover:text-amber-500 hover:bg-amber-500 disabled:hover:bg-transparent focus:ring-2 focus:outline-none font-medium text-sm text-center rounded-md px-5 pt-1.5 pb-2 mr-2 mb-2 border-2 border-amber-900 hover:border-amber-500 disabled:hover:border-amber-900 focus:ring-amber-500 disabled:cursor-not-allowed"
+            type="button"
+            @click="stopProcess"
+        >
+          Пауза
+        </button>
       </TextareaList>
 
       <ProgressInfo :total="totalAmount" :current="completedAmount"/>

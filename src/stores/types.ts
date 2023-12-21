@@ -5,8 +5,8 @@ export type Sort = 'alphabet' | 'age' | 'default'
 
 /** Фильтры результатов */
 export type Filter = {
-  isHideEmptyWebArchiveResults: boolean
-  isHideEmptyGoogleResults: boolean
+  hasWebArchiveResults: boolean
+  hasGoogleResults: boolean
 }
 
 /** Статус результата */

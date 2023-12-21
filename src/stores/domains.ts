@@ -1,25 +1,35 @@
 import {ref, computed, reactive} from 'vue'
 import {defineStore} from 'pinia'
 import {get, set} from '@vueuse/core'
-import {asyncDelay} from '@/helpers'
-import fetchDomainInfo from '@/service/fetch-domain-info'
 import {sortByAlphabet, sortByAge} from '@/stores/sort-results'
 import {filterResults} from '@/stores/filter-results'
 import type {Filter, Sort, IResult} from '@/stores/types'
+import {checkDomain} from '@/stores/check-domain'
+import type {DomainSource} from '@domain'
+import {setIntervalAsync, clearIntervalAsync} from 'set-interval-async'
+import type {SetIntervalAsyncTimer} from 'set-interval-async'
+import {asyncDelay} from '@/helpers'
 
 export const useDomainsStore = defineStore('domains', () => {
+  const state = reactive<{
+    iterator: IterableIterator<IResult> | undefined
+  }>({
+    iterator: undefined,
+  })
+
+  let intervalId: SetIntervalAsyncTimer<unknown[]>
+
   const delay = ref<number>(0)
   const sort = ref<Sort>('default')
   const filter = reactive<Filter>({
-    isHideEmptyWebArchiveResults: false,
-    isHideEmptyGoogleResults: false,
+    hasWebArchiveResults: false,
+    hasGoogleResults: false,
   })
 
-  const sources = ref<string[]>([])
+  const sources = ref<DomainSource[]>([])
   const results = reactive<Map<string, IResult>>(new Map())
 
   const resultsAsArray = computed(() => Array.from(results.values()))
-  const totalAmount = computed(() => get(resultsAsArray).length)
   const completedAmount = computed(() => {
     return get(resultsAsArray)
       .filter((result) => !['idle', 'fetching'].includes(result.status))
@@ -36,6 +46,15 @@ export const useDomainsStore = defineStore('domains', () => {
   /** Установить список доменов для прогона */
   const setDomains = (payload: string[]) => {
     const uniqueDomains = [...new Set(payload)]
+    let isWipeData = true
+
+    if (results.size) {
+      isWipeData = confirm('Изменить список доменов?\nВсе результаты будут утеряны!')
+    }
+
+    if (!isWipeData) {
+      return
+    }
 
     results.clear()
     uniqueDomains.forEach((domainName, index) =>
@@ -56,77 +75,43 @@ export const useDomainsStore = defineStore('domains', () => {
   /** Установить фильтр результатов */
   const setFilter = (payload: Filter) => Object.assign(filter, payload)
 
+  /** Остановка прогона доменов */
+  const stopProcess = async () => {
+    await clearIntervalAsync(intervalId)
+    set(isInProcess, false)
+  }
+
   /** Запуск прогона доменов */
   const startProcess = async () => {
-    const iterator = get(results).values()
+    if (!results.size) {
+      return
+    }
 
     set(isInProcess, true)
 
-    while (get(isInProcess)) {
-      const {value: domainValue, done: isIteratorDone} = get(iterator).next()
-      const domainName = domainValue?.domain
+    if (!state.iterator) {
+      state.iterator = get(results).values()
+    }
 
-      if (isIteratorDone) {
-        stopProcess()
-        return console.log('Done!')
-      } else if (get(delay) && get(completedAmount) !== 0) {
+    intervalId = setIntervalAsync(async () => {
+      if (!get(isInProcess)) {
+        return
+      }
+
+      await checkDomain({
+        results,
+        sources: get(sources),
+        iterator: state.iterator!,
+        onBeforeRequest: async () => undefined,
+        onFinish: stopProcess,
+      })
+
+      if (get(isInProcess)) {
         await asyncDelay(get(delay))
       }
 
-      try {
-        results.set(domainName, {
-          ...domainValue,
-          status: 'fetching',
-        })
-
-        const domainInfo = await fetchDomainInfo(domainName, get(sources))
-
-        if (!domainInfo) {
-          results.set(domainName, {
-            ...domainValue,
-            status: 'fail',
-            error: 'Сервер не вернул данные'
-          })
-          set(completedAmount, get(completedAmount) + 1)
-          continue
-        }
-
-        switch (domainInfo.status) {
-          case 'success': {
-            results.set(domainName, {
-              ...domainValue,
-              status: domainInfo.status,
-              webArchive: domainInfo.data.webArchive,
-              google: domainInfo.data.google,
-            })
-            break
-          }
-          case 'fail': {
-            results.set(domainName, {
-              ...domainValue,
-              status: domainInfo.status,
-              error: domainInfo.error
-            })
-            break
-          }
-        }
-
-        set(completedAmount, get(completedAmount) + 1)
-      } catch (error) {
-        console.error('Ошибка запроса', error)
-      }
-    }
+    }, 100)
   }
-
-  /** Остановка прогона доменов */
-  const stopProcess = () => set(isInProcess, false)
-
-  /** Отфильтрованные и отсортированные результаты */
-  const adaptedResults = computed(() => {
-    const filteredResults = filterResults(get(resultsAsArray), filter)
-
-    return sortsMethodsMap[get(sort)](filteredResults)
-  })
 
   return {
     isInProcess,
@@ -135,9 +120,13 @@ export const useDomainsStore = defineStore('domains', () => {
     filter,
     sources,
     results,
-    adaptedResults,
-
-    totalAmount,
+    /** Отфильтрованные и отсортированные результаты */
+    adaptedResults: computed(() => {
+      const filteredResults = filterResults(get(resultsAsArray), filter)
+      return sortsMethodsMap[get(sort)](filteredResults)
+    }),
+    /** Общее кол-во результатов */
+    totalAmount: computed(() => get(resultsAsArray).length),
     completedAmount,
 
     setDomains,

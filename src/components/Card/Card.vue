@@ -77,12 +77,10 @@ const getStatusIcon = (
         <WebArchiveView
             v-if="props.result.webArchive"
             :data="props.result.webArchive"
-            :status="props.result.status"
         />
         <GoogleView
             v-if="props.result.google"
             :data="props.result.google"
-            :status="props.result.status"
         />
       </div>
     </div>

@@ -22,18 +22,7 @@ export interface GoogleData {
   error?: string,
 }
 
-export interface SuccessDomainCheckResponse {
-  status: 'success'
-  data: {
-    domain: string,
-    webArchive?: WebArchiveData
-    google?: GoogleData
-  }
+export interface DomainCheckResponse {
+  webArchive?: WebArchiveData
+  google?: GoogleData
 }
-
-export interface FailDomainCheckResponse {
-  status: 'fail'
-  error: string
-}
-
-export type DomainCheckResponse = SuccessDomainCheckResponse | FailDomainCheckResponse

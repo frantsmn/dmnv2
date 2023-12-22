@@ -6,7 +6,7 @@
       <input
           type="range"
           min="0"
-          max="5"
+          max="10"
           v-model="delay"
           class="grow -hue-rotate-60 cursor-grab active:cursor-grabbing"
           @input="onInput"

@@ -1,6 +1,7 @@
 import type {WebArchiveData} from '@domain'
 import type {Browser} from 'puppeteer'
 import type {ElementHandle} from 'puppeteer'
+import {isValidDomain} from '../application'
 
 export const useWebArchiveScraper = (browser: Browser) => {
   const getWebArchiveInfo = async (domain: string) => {
@@ -9,6 +10,13 @@ export const useWebArchiveScraper = (browser: Browser) => {
       img: '',
       links: [],
     }
+
+    if (!isValidDomain(domain)) {
+      data.error = 'Некорректное имя домена'
+      void page.close()
+      return data
+    }
+
     let container: ElementHandle<Element> | null = null
 
     try {

@@ -13,8 +13,7 @@ const props = defineProps<{ result: IResult }>()
 const classList = computed(() => ({
   '': props.result.status === 'idle',
   'bg-amber-500': props.result.status === 'fetching',
-  'bg-black': props.result.status === 'success',
-  'bg-red-500': props.result.status === 'fail',
+  'bg-black': props.result.status === 'complete',
 }))
 
 const domainHref = computed(() => `https://${props.result.domain}`)
@@ -23,13 +22,13 @@ const googleHref = computed(() => `https://www.google.by/search?q=site:${props.r
 const getStatusIcon = (
   status: Status,
   data: WebArchiveData | GoogleData | undefined,
-) => {
-  if (status === 'success') {
+): Status | 'fail' => {
+  if (status === 'complete') {
     if (data === undefined) {
       return 'idle'
     }
 
-    return data?.error ? 'fail' : 'success'
+    return data?.error ? 'fail' : 'complete'
   }
 
   return status

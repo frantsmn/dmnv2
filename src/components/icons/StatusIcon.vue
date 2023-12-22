@@ -1,6 +1,6 @@
 <template>
   <div
-      v-if="status === 'success'"
+      v-if="status === 'complete'"
       class="flex-shrink-0 w-[1.3em] h-[1.3em] rounded-full bg-emerald-500 inline-flex items-center justify-center text-white relative z-10 mr-[0.5em]"
       title="Ответ получен"
   >
@@ -78,7 +78,7 @@ export default {
       type: String,
       default: 'idle',
       validator(value: string) {
-        return ['idle', 'fetching', 'success', 'fail'].includes(value)
+        return ['idle', 'fetching', 'complete', 'fail'].includes(value)
       }
     }
   }

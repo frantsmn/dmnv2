@@ -48,7 +48,7 @@ export const useDomainsStore = defineStore('domains', () => {
     const uniqueDomains = [...new Set(payload)]
     let isWipeData = true
 
-    if (results.size) {
+    if (get(completedAmount)) {
       isWipeData = confirm('Изменить список доменов?\nВсе результаты будут утеряны!')
     }
 
@@ -102,7 +102,6 @@ export const useDomainsStore = defineStore('domains', () => {
         results,
         sources: get(sources),
         iterator: state.iterator!,
-        onBeforeRequest: async () => undefined,
         onFinish: stopProcess,
       })
 

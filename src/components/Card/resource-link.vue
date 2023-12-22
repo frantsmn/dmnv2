@@ -8,7 +8,7 @@ const props = defineProps<{
   title: string
   href: string
   error?: string
-  status: Status
+  status: Status | 'fail'
 }>()
 
 const classes = computed(() => ({

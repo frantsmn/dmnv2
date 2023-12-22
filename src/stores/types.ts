@@ -10,7 +10,7 @@ export type Filter = {
 }
 
 /** Статус результата */
-export type Status = 'idle' | 'fetching' | 'success' | 'fail'
+export type Status = 'idle' | 'fetching' | 'complete'
 
 /** Результат */
 export interface IResult {
@@ -24,6 +24,4 @@ export interface IResult {
   webArchive?: WebArchiveData,
   /** Данные Google */
   google?: GoogleData,
-  /** Ошибка проверки (запроса) */
-  error?: string,
 }

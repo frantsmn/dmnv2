@@ -1,12 +1,15 @@
 import type {DomainSource} from '@domain'
 import type {IResult} from '@/stores/types'
-import fetchDomainInfo from '@/service/fetch-domain-info'
+import {useWebArchiveApi} from '@/service/web-archive/web-archive-api'
+import {useGoogleSearchAdapter} from '@/service/google-search'
+
+const {fetchWebArchiveData} = useWebArchiveApi()
+const {fetchGoogleSearchData} = useGoogleSearchAdapter()
 
 export interface CheckDomainParams {
   results: Map<string, IResult>
   sources: DomainSource[]
   iterator: IterableIterator<IResult>
-  onBeforeRequest?: () => Promise<void>
   onFinish: () => void
 }
 
@@ -14,52 +17,54 @@ export const checkDomain = async ({
   results,
   sources,
   iterator,
-  onBeforeRequest,
   onFinish
 }: CheckDomainParams): Promise<IResult | undefined> => {
-  const {value: domainValue, done} = iterator.next()
-  const {domain: domainName} = domainValue as IResult
+  const item = iterator.next()
 
-  if (done) {
-    onFinish()
-    console.log('Done!')
-    return
+  if (item.done) {
+    console.log('🏁 Done!')
+    return void onFinish()
   }
 
-  await onBeforeRequest?.()
+  const {domain: domainName} = item.value
 
   results.set(domainName, {
-    ...domainValue,
+    ...item.value,
     status: 'fetching',
   })
 
-  const domainInfo = await fetchDomainInfo(domainName, sources)
+  if (sources.includes('google')) {
+    const googleData = await fetchGoogleSearchData(domainName)
 
-  if (!domainInfo) {
-    return void results.set(domainName, {
-      ...domainValue,
-      status: 'fail',
-      error: 'Сервер не вернул данные',
-    })
+    if (googleData) {
+      item.value.google = googleData
+    } else {
+      item.value.google = {
+        amountStr: '',
+        links: [],
+        error: '❌ Не удалось получить данные'
+      }
+    }
+    // console.log('1. check-domain: fetchDomainData', googleData)
   }
 
-  switch (domainInfo.status) {
-    case 'success': {
-      results.set(domainName, {
-        ...domainValue,
-        status: domainInfo.status,
-        webArchive: domainInfo.data.webArchive,
-        google: domainInfo.data.google,
-      })
-      break
+  if (sources.includes('webArchive')) {
+    const webArchiveData = await fetchWebArchiveData(domainName)
+
+    if (webArchiveData) {
+      item.value.webArchive = webArchiveData
+    } else {
+      item.value.webArchive = {
+        links: [],
+        img: '',
+        error: '❌ Не удалось получить данные'
+      }
     }
-    case 'fail': {
-      results.set(domainName, {
-        ...domainValue,
-        status: domainInfo.status,
-        error: domainInfo.error,
-      })
-      break
-    }
+    // console.log('2. check-domain: fetchWebArchiveData', webArchiveData)
   }
+
+  results.set(domainName, {
+    ...item.value,
+    status: 'complete',
+  })
 }

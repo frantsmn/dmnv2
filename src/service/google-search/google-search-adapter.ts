@@ -3,7 +3,7 @@ import type {GoogleData} from '@domain'
 
 interface ResultData {
   items: Array<{title: string, link: string}>
-  searchInformation: {totalResults: number}
+  searchInformation: {totalResults: string}
 }
 
 export const useGoogleSearchAdapter = () => {
@@ -12,17 +12,21 @@ export const useGoogleSearchAdapter = () => {
     auth: 'AIzaSyAjVaVJ3vOfs-gPVpmSx_GEmq19l6Pa-bk',
   })
 
-  const fetchGoogleSearchData = async (domain: string): Promise<GoogleData | undefined> => {
+  const fetchGoogleSearchData = async (domain: string): Promise<GoogleData> => {
     const data = await api.fetchGoogleSearchData(`site:${domain}`) as ResultData | undefined
 
-    if (!data) return
+    if (!data) return {
+      amountStr: '',
+      links: [],
+      error: '⚠️ Сервер не вернул данные'
+    }
 
-    const {items} = data
     const {totalResults} = data.searchInformation
+    const {items} = data
 
     return {
-      amountStr: totalResults ? `Результатов: ${totalResults}` : '',
-      links: items.map(item => ({innerText: item.title, href: item.link})),
+      amountStr: Number.parseInt(totalResults, 10) ? `Результатов: ${totalResults}` : 'Нет результатов поиска',
+      links: items?.map(item => ({innerText: item.title, href: item.link})) ?? [],
     }
   }
 

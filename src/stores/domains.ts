@@ -57,6 +57,8 @@ export const useDomainsStore = defineStore('domains', () => {
     }
 
     results.clear()
+    state.iterator = undefined
+
     uniqueDomains.forEach((domainName, index) =>
       results.set(domainName, {
         index: index + 1,
@@ -81,12 +83,14 @@ export const useDomainsStore = defineStore('domains', () => {
     set(isInProcess, false)
   }
 
+  /** После прогона доменов */
+  const onFinish = async () => {
+    state.iterator = undefined
+    await stopProcess()
+  }
+
   /** Запуск прогона доменов */
   const startProcess = async () => {
-    if (!results.size) {
-      return
-    }
-
     set(isInProcess, true)
 
     if (!state.iterator) {
@@ -102,7 +106,7 @@ export const useDomainsStore = defineStore('domains', () => {
         results,
         sources: get(sources),
         iterator: state.iterator!,
-        onFinish: stopProcess,
+        onFinish,
       })
 
       if (get(isInProcess)) {

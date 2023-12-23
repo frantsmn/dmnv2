@@ -5,7 +5,7 @@ export const useGoogleSearchApi = (options: {
   const url = 'https://www.googleapis.com/customsearch/v1?'
   const headers = new Headers({'User-Agent': 'GoogleSearch'})
 
-  const fetchGoogleSearchData = async (q: string) => {
+  const fetchGoogleSearchData = async (q: string): Promise<unknown | undefined> => {
     try {
       const response = await fetch(url + new URLSearchParams({
         key: options.auth,

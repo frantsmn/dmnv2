@@ -10,7 +10,7 @@ export interface CheckDomainParams {
   results: Map<string, IResult>
   sources: DomainSource[]
   iterator: IterableIterator<IResult>
-  onFinish: () => void
+  onFinish: () => Promise<void>
 }
 
 export const checkDomain = async ({
@@ -22,8 +22,9 @@ export const checkDomain = async ({
   const item = iterator.next()
 
   if (item.done) {
+    await onFinish()
     console.log('🏁 Done!')
-    return void onFinish()
+    return
   }
 
   const {domain: domainName} = item.value
@@ -33,38 +34,10 @@ export const checkDomain = async ({
     status: 'fetching',
   })
 
-  if (sources.includes('google')) {
-    const googleData = await fetchGoogleSearchData(domainName)
-
-    if (googleData) {
-      item.value.google = googleData
-    } else {
-      item.value.google = {
-        amountStr: '',
-        links: [],
-        error: '❌ Не удалось получить данные'
-      }
-    }
-    // console.log('1. check-domain: fetchDomainData', googleData)
-  }
-
-  if (sources.includes('webArchive')) {
-    const webArchiveData = await fetchWebArchiveData(domainName)
-
-    if (webArchiveData) {
-      item.value.webArchive = webArchiveData
-    } else {
-      item.value.webArchive = {
-        links: [],
-        img: '',
-        error: '❌ Не удалось получить данные'
-      }
-    }
-    // console.log('2. check-domain: fetchWebArchiveData', webArchiveData)
-  }
-
   results.set(domainName, {
     ...item.value,
+    ...{google: sources.includes('google') ? await fetchGoogleSearchData(domainName) : undefined},
+    ...{webArchive: sources.includes('webArchive') ? await fetchWebArchiveData(domainName) : undefined},
     status: 'complete',
   })
 }

@@ -22,7 +22,8 @@ export interface GoogleData {
   error?: string,
 }
 
+/** Ответ бэка DomainChecker */
 export interface DomainCheckResponse {
   webArchive?: WebArchiveData
-  google?: GoogleData
+  // google?: GoogleData
 }

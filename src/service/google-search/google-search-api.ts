@@ -1,3 +1,18 @@
+export interface GoogleSearchApiErrorResponse {
+  error: {
+    code: number
+    message: string
+  }
+}
+
+export interface GoogleSearchApiSuccessResponse {
+  items: Array<{title: string, link: string}>
+  searchInformation?: {totalResults?: string}
+}
+
+export type GoogleSearchApiResponse = GoogleSearchApiErrorResponse | GoogleSearchApiSuccessResponse
+
+
 export const useGoogleSearchApi = (options: {
   cx: string
   auth: string,
@@ -5,7 +20,7 @@ export const useGoogleSearchApi = (options: {
   const url = 'https://www.googleapis.com/customsearch/v1?'
   const headers = new Headers({'User-Agent': 'GoogleSearch'})
 
-  const fetchGoogleSearchData = async (q: string): Promise<unknown | undefined> => {
+  const fetchGoogleSearchData = async (q: string): Promise<GoogleSearchApiResponse> => {
     try {
       const response = await fetch(url + new URLSearchParams({
         key: options.auth,
@@ -16,10 +31,17 @@ export const useGoogleSearchApi = (options: {
         method: 'GET',
       })
 
-      return await response.json()
-    } catch (err) {
-      console.error(`[google-search-api] Ошибка запроса\n${err}`)
-      return
+      return await response.json() as GoogleSearchApiResponse
+    } catch (e) {
+      const error = e as Error
+      console.error(`[google-search-api] Ошибка запроса\n${error.message}`)
+
+      return {
+        error: {
+          code: 0,
+          message: error.message,
+        }
+      }
     }
   }
 

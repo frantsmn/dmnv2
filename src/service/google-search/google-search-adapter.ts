@@ -1,11 +1,6 @@
 import {useGoogleSearchApi} from '@/service/google-search/google-search-api'
 import type {GoogleData} from '@domain'
 
-interface ResultData {
-  items: Array<{title: string, link: string}>
-  searchInformation?: {totalResults?: string}
-}
-
 export const useGoogleSearchAdapter = () => {
   const api = useGoogleSearchApi({
     cx: 'a6410bda0aaee4378',
@@ -13,12 +8,18 @@ export const useGoogleSearchAdapter = () => {
   })
 
   const fetchGoogleSearchData = async (domain: string): Promise<GoogleData> => {
-    const data = await api.fetchGoogleSearchData(`site:${domain}`) as ResultData | undefined
+    const data = await api.fetchGoogleSearchData(`site:${domain}`)
 
     if (!data) return {
       amountStr: '',
       links: [],
       error: '⚠️ Сервер не вернул данные'
+    }
+    
+    if ('error' in data) return {
+      amountStr: '',
+      links: [],
+      error: data.error.message
     }
 
     const {items, searchInformation} = data

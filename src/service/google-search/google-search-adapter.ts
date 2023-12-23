@@ -3,7 +3,7 @@ import type {GoogleData} from '@domain'
 
 interface ResultData {
   items: Array<{title: string, link: string}>
-  searchInformation: {totalResults: string}
+  searchInformation?: {totalResults?: string}
 }
 
 export const useGoogleSearchAdapter = () => {
@@ -21,11 +21,14 @@ export const useGoogleSearchAdapter = () => {
       error: '⚠️ Сервер не вернул данные'
     }
 
-    const {totalResults} = data.searchInformation
-    const {items} = data
+    const {items, searchInformation} = data
 
     return {
-      amountStr: Number.parseInt(totalResults, 10) ? `Результатов: ${totalResults}` : 'Нет результатов поиска',
+      amountStr: searchInformation
+      && searchInformation?.totalResults
+      && Number.parseInt(searchInformation.totalResults, 10)
+        ? `Результатов: ${searchInformation.totalResults}`
+        : 'Нет результатов поиска',
       links: items?.map(item => ({innerText: item.title, href: item.link})) ?? [],
     }
   }

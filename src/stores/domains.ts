@@ -1,14 +1,14 @@
 import {ref, computed, reactive} from 'vue'
-import {defineStore} from 'pinia'
 import {get, set} from '@vueuse/core'
+import {defineStore} from 'pinia'
+import {setIntervalAsync, clearIntervalAsync} from 'set-interval-async'
 import {sortByAlphabet, sortByAge} from '@/stores/sort-results'
 import {filterResults} from '@/stores/filter-results'
-import type {Filter, Sort, IResult} from '@/stores/types'
 import {checkDomain} from '@/stores/check-domain'
-import type {DomainSource} from '@domain'
-import {setIntervalAsync, clearIntervalAsync} from 'set-interval-async'
-import type {SetIntervalAsyncTimer} from 'set-interval-async'
 import {asyncDelay} from '@/helpers'
+import type {Filter, Sort, IResult} from '@/stores/types'
+import type {DomainSource} from '@domain'
+import type {SetIntervalAsyncTimer} from 'set-interval-async'
 
 export const useDomainsStore = defineStore('domains', () => {
   const state = reactive<{
@@ -98,9 +98,7 @@ export const useDomainsStore = defineStore('domains', () => {
     }
 
     intervalId = setIntervalAsync(async () => {
-      if (!get(isInProcess)) {
-        return
-      }
+      if (!get(isInProcess)) return
 
       await checkDomain({
         results,
@@ -109,10 +107,7 @@ export const useDomainsStore = defineStore('domains', () => {
         onFinish,
       })
 
-      if (get(isInProcess)) {
-        await asyncDelay(get(delay))
-      }
-
+      if (get(isInProcess)) await asyncDelay(get(delay))
     }, 100)
   }
 
@@ -123,11 +118,13 @@ export const useDomainsStore = defineStore('domains', () => {
     filter,
     sources,
     results,
+
     /** Отфильтрованные и отсортированные результаты */
     adaptedResults: computed(() => {
       const filteredResults = filterResults(get(resultsAsArray), filter)
       return sortsMethodsMap[get(sort)](filteredResults)
     }),
+
     /** Общее кол-во результатов */
     totalAmount: computed(() => get(resultsAsArray).length),
     completedAmount,
